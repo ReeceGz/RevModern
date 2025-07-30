@@ -68,16 +68,17 @@ class users implements iUsers
 		return false;
 	}
 		
-	final public function userValidation($username, $password)
-	{ 		
-		global $engine; 
-		if($engine->num_rows("SELECT * FROM users WHERE username = '" . $username . "' AND password = '" . $password . "' LIMIT 1") > 0)
-		{
-			return true;
-		} 	
-		 
-		return false;
-	} 	 	
+        final public function userValidation($username, $password)
+        {
+                global $engine, $core;
+                $hash = $engine->result("SELECT password FROM users WHERE username = '" . $engine->secure($username) . "' LIMIT 1");
+                if($hash && $core->verifyHash($password, $hash))
+                {
+                        return true;
+                }
+
+                return false;
+        }
 	
 	/*-------------------------------Stuff related to bans-------------------------------------*/ 
 	
@@ -152,7 +153,7 @@ class users implements iUsers
 											if(!isset($template->form->reg_gender)) { $template->form->reg_gender = 'M'; }
 											if(!isset($template->form->reg_figure)) { $template->form->reg_figure = $_CONFIG['hotel']['figure']; }
 										
-											$this->addUser($template->form->reg_username, $core->hashed($template->form->reg_password), $template->form->reg_email, $_CONFIG['hotel']['motto'], $_CONFIG['hotel']['credits'], $_CONFIG['hotel']['pixels'], 1, $template->form->reg_figure, $template->form->reg_gender, $core->hashed($template->form->reg_key));
+                                                                               $this->addUser($template->form->reg_username, $core->passwordHash($template->form->reg_password), $template->form->reg_email, $_CONFIG['hotel']['motto'], $_CONFIG['hotel']['credits'], $_CONFIG['hotel']['pixels'], 1, $template->form->reg_figure, $template->form->reg_gender, $core->hashed($template->form->reg_key));
 							
 											$this->turnOn($template->form->reg_username);
 									
@@ -223,7 +224,7 @@ class users implements iUsers
 			{
 				if($this->isBanned($template->form->log_username) == false || $this->isBanned($_SERVER['REMOTE_ADDR']) == false)
 				{
-					if($this->userValidation($template->form->log_username, $core->hashed($template->form->log_password)))
+                                        if($this->userValidation($template->form->log_username, $template->form->log_password))
 					{
 						$this->turnOn($template->form->log_username);
 						$this->updateUser($_SESSION['user']['id'], 'ip_last', $_SERVER['REMOTE_ADDR']);
@@ -265,7 +266,7 @@ class users implements iUsers
 			{
 				if($this->nameTaken($template->form->username)) 
 				{	 
-					if($this->userValidation($template->form->username, $core->hashed($template->form->password)))
+                                        if($this->userValidation($template->form->username, $template->form->password))
 					{
 						if(($this->getInfo($_SESSION['user']['id'], 'rank')) >= 4)
 						{
@@ -353,16 +354,16 @@ class users implements iUsers
 				}
 			}
 			
-			if(!empty($_POST['acc_old_password']) && !empty($_POST['acc_new_password']))
-			{
-				if($this->userValidation($this->getInfo($_SESSION['user']['id'], 'username'), $core->hashed($_POST['acc_old_password'])))
-				{
-					if(strlen($_POST['acc_new_password']) >= 8)
-					{
-						$this->updateUser($_SESSION['user']['id'], 'password', $core->hashed($_POST['acc_new_password']));
-						header('Location: '.$_CONFIG['hotel']['url'].'/me');
-						exit;
-					}
+                        if(!empty($_POST['acc_old_password']) && !empty($_POST['acc_new_password']))
+                        {
+                                if($this->userValidation($this->getInfo($_SESSION['user']['id'], 'username'), $_POST['acc_old_password']))
+                                {
+                                        if(strlen($_POST['acc_new_password']) >= 8)
+                                        {
+                                                $this->updateUser($_SESSION['user']['id'], 'password', $core->passwordHash($_POST['acc_new_password']));
+                                                header('Location: '.$_CONFIG['hotel']['url'].'/me');
+                                                exit;
+                                        }
 					else
 					{
 						$template->form->error = 'New password is too short';
@@ -404,9 +405,9 @@ class users implements iUsers
 			{
 				if(strlen($template->form->for_password) > 6)
 				{
-					if($this->getInfo($this->getID($template->form->for_username), 'seckey') == $core->hashed($template->form->for_key))
-					{
-						$this->updateUser($this->getID($template->form->for_username), 'password', $core->hashed($template->form->for_password));
+                                        if($this->getInfo($this->getID($template->form->for_username), 'seckey') == $core->hashed($template->form->for_key))
+                                        {
+                                                $this->updateUser($this->getID($template->form->for_username), 'password', $core->passwordHash($template->form->for_password));
 						$template->form->error = 'Account recovered! Go <b><a href="index">here</a></b> to login!';
 						return;
 					}
