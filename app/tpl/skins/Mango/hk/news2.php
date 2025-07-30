@@ -17,7 +17,7 @@
            <br />
 		   [ <a href='dash'>Return to Dashboard</a> ] [ <a href='logout.php'>Log out</a> ]<br /> <br />
             <p>
-			<?php if(mysql_result(mysql_query("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'"), 0) >= 7)
+                        <?php if($engine->result("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'") >= 7)
 			{ ?>
 			Player Management <br /> <img src='../app/tpl/skins/<?php echo $_CONFIG['template']['style']; ?>/hk/images/line.png'> <br />
 			&raquo; <a href='sub'>Last 50 VIP purchases</a> <br />
@@ -28,7 +28,7 @@
 			Administration <br /> <img src='../app/tpl/skins/<?php echo $_CONFIG['template']['style']; ?>/hk/images/line.png'> <br />
 			&raquo; <a href='news'>Post news article</a><br />
 			<br />
-			<?php } if(mysql_result(mysql_query("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'"), 0) >= 5) { ?>
+                        <?php } if($engine->result("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'") >= 5) { ?>
 			Moderation <br /> <img src='../app/tpl/skins/<?php echo $_CONFIG['template']['style']; ?>/hk/images/line.png'> <br />
 			&raquo; <a href='banlist'>Ban List</a> <br />
 			&raquo; <a href='ip'>IP lookup</a> <br />
@@ -62,8 +62,12 @@ if(!isset($_SESSION["longstory"]))
 
 if(isset($_POST["proceed"]))
 {
-	$author = mysql_result(mysql_query("SELECT username FROM users WHERE id = '".$_SESSION['user']['id']."' LIMIT 1"), 0);
-	mysql_query("INSERT INTO cms_news (title,shortstory,longstory,published,image,author, campaign, campaignimg) VALUES ('" . filter($_SESSION["title"]) . "', '" . filter($_SESSION["shortstory"]) . "', '" . filter($_SESSION["longstory"]) . "', '" . time() . "', '" . filter($_POST["topstory"]) . "', '" . filter($author) . "', 0, 'default')") or die(mysql_error());
+        $stmt = $engine->prepare("SELECT username FROM users WHERE id = ? LIMIT 1");
+        $stmt->execute([$_SESSION['user']['id']]);
+        $author = $stmt->fetchColumn();
+        $engine->free_result($stmt);
+        $stmt = $engine->prepare("INSERT INTO cms_news (title,shortstory,longstory,published,image,author, campaign, campaignimg) VALUES (?, ?, ?, ?, ?, ?, 0, 'default')");
+        $stmt->execute([filter($_SESSION["title"]), filter($_SESSION["shortstory"]), filter($_SESSION["longstory"]), time(), filter($_POST["topstory"]), filter($author)]);
 	unset($_SESSION["title"], $_SESSION["shortstory"], $_SESSION["longstory"]);
 	header("Location: ".$_CONFIG['hotel']['url']."/ase/");
 	exit;
