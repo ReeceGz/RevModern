@@ -44,29 +44,23 @@ class users implements iUsers
 		return false;
 	}
 	
-	final public function nameTaken($username) 	
-	{ 		
-	 	global $engine; 		
-	 	
-		if($engine->num_rows("SELECT * FROM users WHERE username = '" . $username . "' LIMIT 1") > 0)
-		{
-			return true;
-		} 	
-		
-		return false;
-	} 
-	
-	final public function emailTaken($email)
-	{
-		global $engine;
-		
-		if($engine->num_rows("SELECT * FROM users WHERE mail = '" . $email . "' LIMIT 1") > 0)
-		{
-			return true;
-		}
-		
-		return false;
-	}
+        final public function nameTaken($username)
+        {
+                global $engine;
+
+                $stmt = $engine->prepare("SELECT 1 FROM users WHERE username = ? LIMIT 1");
+                $stmt->execute([$username]);
+                return $stmt->rowCount() > 0;
+        }
+
+        final public function emailTaken($email)
+        {
+                global $engine;
+
+                $stmt = $engine->prepare("SELECT 1 FROM users WHERE mail = ? LIMIT 1");
+                $stmt->execute([$email]);
+                return $stmt->rowCount() > 0;
+        }
 		
         final public function userValidation($username, $password)
         {
@@ -84,33 +78,29 @@ class users implements iUsers
 	
 	/*-------------------------------Stuff related to bans-------------------------------------*/ 
 	
-	final public function isBanned($value)
-	{
-		global $engine;
-		if($engine->num_rows("SELECT * FROM bans WHERE value = '" . $value . "' LIMIT 1") > 0)
-		{
-			return true;
-		}
-			
-		return false;
-	}
-	
-	final public function getReason($value)
-	{
-		global $engine;
-		return $engine->result("SELECT reason FROM bans WHERE value = '" . $value . "' LIMIT 1");
-	}
-	
-	final public function hasClones($ip)
-	{
-		global $engine;
-		if($engine->num_rows("SELECT * FROM users WHERE ip_reg = '" . $_SERVER['REMOTE_ADDR'] . "'") == 1)
-		{
-			return true;
-		}
-		
-		return false;
-	}
+        final public function isBanned($value)
+        {
+                global $engine;
+                $stmt = $engine->prepare("SELECT 1 FROM bans WHERE value = ? LIMIT 1");
+                $stmt->execute([$value]);
+                return $stmt->rowCount() > 0;
+        }
+
+        final public function getReason($value)
+        {
+                global $engine;
+                $stmt = $engine->prepare("SELECT reason FROM bans WHERE value = ? LIMIT 1");
+                $stmt->execute([$value]);
+                return $stmt->fetchColumn();
+        }
+
+        final public function hasClones($ip)
+        {
+                global $engine;
+                $stmt = $engine->prepare("SELECT 1 FROM users WHERE ip_reg = ?");
+                $stmt->execute([$ip]);
+                return $stmt->rowCount() == 1;
+        }
 	
 	/*-------------------------------Login or Register user-------------------------------------*/ 
 	
@@ -501,12 +491,18 @@ class users implements iUsers
 	
 	/*-------------------------------Handling user information-------------------------------------*/ 	 
 	
-	final public function cacheUser($k)
-	{
-		global $engine; 		 	
-               $userInfo = $engine->fetch_assoc("SELECT username, rank, motto, mail, look, auth_ticket, ip_last FROM users WHERE id = '" . $k . "' LIMIT 1");
-               $userInfo['credits'] = $engine->result("SELECT amount FROM users_currency WHERE user_id = '".$k."' AND type = '0' LIMIT 1");
-               $userInfo['activity_points'] = $engine->result("SELECT amount FROM users_currency WHERE user_id = '".$k."' AND type = '5' LIMIT 1");
+       final public function cacheUser($k)
+        {
+                global $engine;
+               $stmt = $engine->prepare("SELECT username, rank, motto, mail, look, auth_ticket, ip_last FROM users WHERE id = ? LIMIT 1");
+               $stmt->execute([$k]);
+               $userInfo = $stmt->fetch();
+               $stmt = $engine->prepare("SELECT amount FROM users_currency WHERE user_id = ? AND type = 0 LIMIT 1");
+               $stmt->execute([$k]);
+               $userInfo['credits'] = $stmt->fetchColumn();
+               $stmt = $engine->prepare("SELECT amount FROM users_currency WHERE user_id = ? AND type = 5 LIMIT 1");
+               $stmt->execute([$k]);
+               $userInfo['activity_points'] = $stmt->fetchColumn();
 		
 		foreach($userInfo as $key => $value)
 		{
@@ -528,11 +524,15 @@ class users implements iUsers
                         if($key == 'credits' || $key == 'activity_points')
                         {
                                 $type = ($key == 'credits') ? 0 : 5;
-                                $value = $engine->result("SELECT amount FROM users_currency WHERE user_id = '" . $engine->secure($k) . "' AND type = '".$type."' LIMIT 1");
+                                $stmt = $engine->prepare("SELECT amount FROM users_currency WHERE user_id = ? AND type = ? LIMIT 1");
+                                $stmt->execute([$k, $type]);
+                                $value = $stmt->fetchColumn();
                         }
                         else
                         {
-                                $value = $engine->result("SELECT $key FROM users WHERE id = '" . $engine->secure($k) . "' LIMIT 1");
+                                $stmt = $engine->prepare("SELECT {$key} FROM users WHERE id = ? LIMIT 1");
+                                $stmt->execute([$k]);
+                                $value = $stmt->fetchColumn();
                         }
                         if($value != null)
                         {
@@ -547,11 +547,13 @@ class users implements iUsers
 	
 	/*-------------------------------Get user ID or Username-------------------------------------*/ 
 	
-	final public function getID($k) 	
-	{ 		
-		global $engine; 		
-		return $engine->result("SELECT id FROM users WHERE username = '" . $engine->secure($k) . "' LIMIT 1"); 	
-	} 		
+        final public function getID($k)
+        {
+                global $engine;
+                $stmt = $engine->prepare("SELECT id FROM users WHERE username = ? LIMIT 1");
+                $stmt->execute([$k]);
+                return $stmt->fetchColumn();
+        }
 	
 	final public function getUsername($k)
 	{
