@@ -1,0 +1,14 @@
+# Ignore sensitive configuration files and environment-specific settings
+app/management/config.php
+
+# Ignore common environment files
+.env
+*.env
+*.env.*
+*.ini
+*.log
+.DS_Store
+
+# Ignore editor directories and files
+*~
+*.swp
