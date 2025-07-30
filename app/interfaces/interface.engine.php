@@ -15,7 +15,9 @@ interface iEngine
 	
 	public function secure($var);
 	
-	public function query($sql);
+        public function query($sql);
+
+        public function prepare($sql);
 	
 	public function num_rows($sql);
 	
