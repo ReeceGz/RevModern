@@ -17,7 +17,7 @@
            <br />
 		   [ <a href='dash'>Return to Dashboard</a> ] [ <a href='logout.php'>Log out</a> ]<br /> <br />
             <p>
-			<?php if(mysql_result(mysql_query("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'"), 0) >= 7)
+                        <?php if($engine->result("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'") >= 7)
 			{ ?>
 			Player Management <br /> <img src='../app/tpl/skins/<?php echo $_CONFIG['template']['style']; ?>/hk/images/line.png'> <br />
 			&raquo; <a href='sub'>Last 50 VIP purchases</a> <br />
@@ -28,7 +28,7 @@
 			Administration <br /> <img src='../app/tpl/skins/<?php echo $_CONFIG['template']['style']; ?>/hk/images/line.png'> <br />
 			&raquo; <a href='news'>Post news article</a><br />
 			<br />
-			<?php } if(mysql_result(mysql_query("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'"), 0) >= 5) { ?>
+                        <?php } if($engine->result("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'") >= 5) { ?>
 			Moderation <br /> <img src='../app/tpl/skins/<?php echo $_CONFIG['template']['style']; ?>/hk/images/line.png'> <br />
 			&raquo; <a href='banlist'>Ban List</a> <br />
 			&raquo; <a href='ip'>IP lookup</a> <br />
@@ -53,13 +53,16 @@
           <!-- insert the page content here -->
           <br /> 
           <?php
-	if(isset($_POST['give']))
-	{	
-		if(mysql_num_rows(mysql_query("SELECT * FROM users WHERE username = '" . filter($_POST['username']) . "'"))){ echo "User does not exist."; }
-		else {
-		mysql_query("UPDATE users SET rank = 2, credits = credits + '200000', activity_points = activity_points + '200000' WHERE username = '" . $_POST['username'] . "'");
-		}
-	}
+        if(isset($_POST['give']))
+        {
+                $stmt = $engine->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+                $stmt->execute([filter($_POST['username'])]);
+                if($stmt->fetchColumn() == 0){ echo "User does not exist."; }
+                else {
+                $stmt = $engine->prepare("UPDATE users SET rank = 2, credits = credits + '200000', activity_points = activity_points + '200000' WHERE username = ?");
+                $stmt->execute([$_POST['username']]);
+                }
+        }
 	
 ?>
 				<form method="post">

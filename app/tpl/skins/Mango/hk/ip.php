@@ -17,7 +17,7 @@
            <br />
 		   [ <a href='dash'>Return to Dashboard</a> ] [ <a href='logout.php'>Log out</a> ]<br /> <br />
             <p>
-			<?php if(mysql_result(mysql_query("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'"), 0) >= 7)
+                        <?php if($engine->result("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'") >= 7)
 			{ ?>
 			Player Management <br /> <img src='../app/tpl/skins/<?php echo $_CONFIG['template']['style']; ?>/hk/images/line.png'> <br />
 			&raquo; <a href='sub'>Last 50 VIP purchases</a> <br />
@@ -28,7 +28,7 @@
 			Administration <br /> <img src='../app/tpl/skins/<?php echo $_CONFIG['template']['style']; ?>/hk/images/line.png'> <br />
 			&raquo; <a href='news'>Post news article</a><br />
 			<br />
-			<?php } if(mysql_result(mysql_query("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'"), 0) >= 5) { ?>
+                        <?php } if($engine->result("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'") >= 5) { ?>
 			Moderation <br /> <img src='../app/tpl/skins/<?php echo $_CONFIG['template']['style']; ?>/hk/images/line.png'> <br />
 			&raquo; <a href='banlist'>Ban List</a> <br />
 			&raquo; <a href='ip'>IP lookup</a> <br />
@@ -56,15 +56,21 @@
           <table width="100%">
 <tr><td><b>Username</b></td><td><b>E-Mail</b></td><td><b>IP</b></td></tr>
 <?php
-	if(isset($_POST['get_ip']))
-	{
-		$derp = mysql_fetch_array(mysql_query("SELECT ip_last FROM users WHERE username = '" . filter($_POST['username']) . "'"), MYSQL_ASSOC);
-		$lerp = mysql_query("SELECT * FROM users WHERE ip_last = '" . $derp['ip_last'] . "'");
-		
-		echo "There are " . mysql_num_rows($lerp) . " account(s) on this IP. <br /><br />";
-		while($ferp = mysql_fetch_array($lerp, MYSQL_ASSOC)) {
-		echo "<tr><td>" . $ferp['username'] . "</td><td>" . $ferp['mail'] . "</td><td>" . $ferp['ip_last'] . "</td></tr>"; }
-	} ?>
+        if(isset($_POST['get_ip']))
+        {
+                $stmt = $engine->prepare("SELECT ip_last FROM users WHERE username = ?");
+                $stmt->execute([filter($_POST['username'])]);
+                $derp = $stmt->fetch();
+                $engine->free_result($stmt);
+                $stmt = $engine->prepare("SELECT * FROM users WHERE ip_last = ?");
+                $stmt->execute([$derp['ip_last']]);
+                $accounts = $stmt->fetchAll();
+
+                echo "There are " . count($accounts) . " account(s) on this IP. <br /><br />";
+                foreach($accounts as $ferp) {
+                echo "<tr><td>" . $ferp['username'] . "</td><td>" . $ferp['mail'] . "</td><td>" . $ferp['ip_last'] . "</td></tr>"; }
+                $engine->free_result($stmt);
+        } ?>
 	
 	<form method='post'>
 	Username <br /> <input type="text" name="username" /> <br /> <br />

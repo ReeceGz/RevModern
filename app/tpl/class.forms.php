@@ -59,12 +59,14 @@ class forms implements iForms
 			{
 				$_GET['id'] = 1;
 			}
-				$result = mysql_query("SELECT title, id FROM cms_news WHERE id != '" . $engine->secure($_GET['id']) . "' ORDER BY id DESC");
-				
-				while($news1 = mysql_fetch_array($result))
-				{
-					$template->setParams('newsList', '&laquo; <a href="index.php?url=news&id='.$news1["id"].'">' . $news1['title'] . '</a><br/>');
-				}
+                                $stmt = $engine->prepare("SELECT title, id FROM cms_news WHERE id != :id ORDER BY id DESC");
+                                $stmt->bindValue(':id', $_GET['id'], \PDO::PARAM_INT);
+                                $stmt->execute();
+                                while($news1 = $stmt->fetch())
+                                {
+                                        $template->setParams('newsList', '&laquo; <a href="index.php?url=news&id='.$news1["id"].'">' . $news1['title'] . '</a><br/>');
+                                }
+                                $engine->free_result($stmt);
 				
 				$news = $engine->fetch_assoc("SELECT title, longstory, author, published FROM cms_news WHERE id = '" . $engine->secure($_GET['id']) . "' LIMIT 1");
 				$template->setParams('newsTitle', $news['title']);
@@ -80,22 +82,22 @@ class forms implements iForms
 	final public function getPageHome()
 	{
 		global $template, $engine;
-		$a = 1;
-		$data = mysql_query("SELECT title, id, published, shortstory, image FROM cms_news ORDER BY id DESC LIMIT 5");
-                
-        while($news = mysql_fetch_array($data, MYSQL_ASSOC))
-       	{
+                $a = 1;
+                $stmt = $engine->query("SELECT title, id, published, shortstory, image FROM cms_news ORDER BY id DESC LIMIT 5");
+
+        while($news = $stmt->fetch())
+        {
             $template->setParams('newsTitle-' . $a, $news['title']);
             $template->setParams('newsID-' . $a, $news['id']);
             $template->setParams('newsDate-' . $a, date("d-m-y", $news['published']));
             $template->setParams('newsCaption-' . $a, $news['shortstory']);
             $template->setParams('newsIMG-' . $a, $news['image']);
-        	$a++;
+                $a++;
         }
-        
+
         unset($news);
-        unset($data);
-	}
+        $engine->free_result($stmt);
+        }
 	
 }
 
