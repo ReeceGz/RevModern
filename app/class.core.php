@@ -163,9 +163,19 @@ class core implements iCore
 		}
 	}
 	
-	final public function hashed($password)
-	{
-		return md5($password);
-	}
+        final public function hashed($password)
+        {
+                return md5($password);
+        }
+
+        final public function passwordHash($password)
+        {
+                return password_hash($password, PASSWORD_BCRYPT);
+        }
+
+        final public function verifyHash($password, $hash)
+        {
+                return password_verify($password, $hash);
+        }
 }
 ?>
