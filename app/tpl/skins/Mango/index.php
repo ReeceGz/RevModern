@@ -28,4 +28,4 @@ Please login with your account or click Register to create one
 </div> 
 </div> 
 <hr/><center>Powered by <b></b><a href="http://devbest.com/threads/0-9-revcms-php-mysql.8746/">RevCMS</a></b> coded by <b>Kryptos</b> | Design by <b>dannyy94</b> | Copyright &copy {hotelName} Hotel</center>
-</div> 
+</div>

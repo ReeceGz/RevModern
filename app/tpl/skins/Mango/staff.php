@@ -103,4 +103,4 @@ Welcome back to {hotelName}, {username}!
 <li><a href="#">Help</a></li> 
 <li><a href="logout">Logout</a></li> 
 </ul> 
-</div> 
+</div>
