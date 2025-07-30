@@ -7,9 +7,9 @@ interface iEngine
 
 	public function Initiate();
 	
-	public function setMySQL($key, $value); 
-
-	public function connect($type);
+       public function connect($type);
+       public function insert_id();
+       public function getConnection();
 
 	public function disconnect();
 	

@@ -4,135 +4,98 @@ namespace Revolution;
 if(!defined('IN_INDEX')) { die('Sorry, you cannot access this file.'); }
 class engine
 {
-	private $initiated;
-	private $connected;
-	
-	private $connection;
-	
-	
-	final public function Initiate()
-	{
-		global $_CONFIG;
-		if(!$this->initiated)
-		{
-			$this->setMySQL('connect', mysql_connect);
-			$this->setMySQL('pconnect', mysql_pconnect);
-			$this->setMysql('select_db', mysql_select_db);
-			$this->setMySQL('query', mysql_query);
-			$this->setMySQL('num_rows', mysql_num_rows);
-			$this->setMySQL('fetch_assoc', mysql_fetch_assoc);
-			$this->setMySQL('fetch_array',mysql_fetch_array);
-			$this->setMySQL('result', mysql_result);
-			$this->setMySQL('free_result', mysql_free_result);
-			$this->setMySQL('escape_string', mysql_real_escape_string);
-			
-			$this->initiated = true;
-		
-			$this->connect($_CONFIG['mysql']['connection_type']);
-		}
-	}
-	
-	final public function setMySQL($key, $value)
-	{
-		$this->mysql[$key] = $value;
-	}
-	
-	
-	/*-------------------------------Manage Connection-------------------------------------*/
-	
-	final public function connect($type)
-	{
-		global $core, $_CONFIG;
-		if(!$this->connected)
-		{
-			$this->connection = $this->mysql[$type]($_CONFIG['mysql']['hostname'], $_CONFIG['mysql']['username'], $_CONFIG['mysql']['password']);
-			
-			if($this->connection)
-			{
-				$mydatabase = $this->mysql['select_db']($_CONFIG['mysql']['database'], $this->connection);
-				
-				if($mydatabase)
-				{
-					$this->connected = true;	
-				}
-				else
-				{
-					$core->systemError('MySQL Engine', 'MySQL could not connect to database');
-				}
-			}
-			else
-			{
-				$core->systemError('MySQL Engine', 'MySQL could not connect to host');			
-			}
-		}
-	}
-	
-	final public function disconnect()
-	{
-		global $core;
-		if($this->connected)
-		{
-			if($this->mysql['close'])
-			{
-				$this->connected = false;
-			}
-			else
-			{
-				$core->systemError('MySQL Engine', 'MySQL could not disconnect.');
-			}
-		}
-	}
-	
-	/*-------------------------------Secure MySQL variables-------------------------------------*/
-	
-	final public function secure($var)
-	{
-		return $this->mysql['escape_string'](stripslashes(htmlspecialchars($var)));
-	}
-	
-	/*-------------------------------Manage MySQL queries-------------------------------------*/
-	
-	final public function query($sql)
-	{
-		return $this->mysql['query']($sql, $this->connection) or die(mysql_error());
-	}
-	
-	final public function num_rows($sql)
-	{
-		return $this->mysql['num_rows']($this->mysql['query']($sql, $this->connection));
-	}
-	
-	final public function result($sql)
-	{
-		return $this->mysql['result']($this->mysql['query']($sql, $this->connection), 0);
-	}
-	
-	final public function free_result($sql)
-	{
-		return $this->mysql['free_result']($sql);
-	}
-	
-	final public function fetch_array($sql)
-	{
-		$query = $this->mysql['query']($sql, $this->connection);
-		
-		$data = array();
-		
-		while($row = $this->mysql['fetch_array']($query))
-		{
-			$data[] = $row;
-		}
-		
-		return $data;
-	}
-	
-	final public function fetch_assoc($sql)
-	{
-		return $this->mysql['fetch_assoc']($this->mysql['query']($sql, $this->connection));
-	}
+    private $initiated = false;
+    private $connected = false;
+    private $connection;
 
+    public function Initiate()
+    {
+        global $_CONFIG;
+        if(!$this->initiated)
+        {
+            $this->connect($_CONFIG['mysql']['connection_type']);
+            $this->initiated = true;
+        }
+    }
 
+    public function connect($type)
+    {
+        global $core, $_CONFIG;
+        if(!$this->connected)
+        {
+            $options = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                        \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC];
+            if($type === 'pconnect')
+            {
+                $options[\PDO::ATTR_PERSISTENT] = true;
+            }
+            $dsn = sprintf('mysql:host=%s;dbname=%s;port=%s;charset=utf8mb4',
+                           $_CONFIG['mysql']['hostname'],
+                           $_CONFIG['mysql']['database'],
+                           $_CONFIG['mysql']['port']);
+            try {
+                $this->connection = new \PDO($dsn, $_CONFIG['mysql']['username'], $_CONFIG['mysql']['password'], $options);
+                $this->connected = true;
+            } catch (\PDOException $e) {
+                $core->systemError('MySQL Engine', 'Connection failed: '.$e->getMessage());
+            }
+        }
+    }
 
+    public function disconnect()
+    {
+        if($this->connected)
+        {
+            $this->connection = null;
+            $this->connected = false;
+        }
+    }
 
+    public function secure($var)
+    {
+        return substr($this->connection->quote(stripslashes(htmlspecialchars($var, ENT_QUOTES))),1,-1);
+    }
+
+    public function query($sql)
+    {
+        return $this->connection->query($sql);
+    }
+
+    public function num_rows($sql)
+    {
+        return $this->query($sql)->rowCount();
+    }
+
+    public function result($sql)
+    {
+        return $this->query($sql)->fetchColumn();
+    }
+
+    public function free_result($res)
+    {
+        if($res instanceof \PDOStatement){
+            $res->closeCursor();
+        }
+    }
+
+    public function fetch_array($sql)
+    {
+        return $this->query($sql)->fetchAll();
+    }
+
+    public function fetch_assoc($sql)
+    {
+        return $this->query($sql)->fetch();
+    }
+
+    public function insert_id()
+    {
+        return $this->connection->lastInsertId();
+    }
+
+    public function getConnection()
+    {
+        return $this->connection;
+    }
 }
 ?>
