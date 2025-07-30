@@ -71,11 +71,13 @@ class users implements iUsers
         final public function userValidation($username, $password)
         {
                 global $engine, $core;
-                $hash = $engine->result("SELECT password FROM users WHERE username = '" . $engine->secure($username) . "' LIMIT 1");
-                if($hash && $core->verifyHash($password, $hash))
-                {
-                        return true;
-                }
+               $stmt = $engine->prepare("SELECT password FROM users WHERE username = ? LIMIT 1");
+               $stmt->execute([$username]);
+               $hash = $stmt->fetchColumn();
+               if($hash && $core->verifyHash($password, $hash))
+               {
+                       return true;
+               }
 
                 return false;
         }
@@ -448,9 +450,11 @@ class users implements iUsers
        {
                 global $engine;
                 $sessionKey = 'RevCMS-'.rand(9,999).'/'.substr(sha1(time()).'/'.rand(9,9999999).'/'.rand(9,9999999).'/'.rand(9,9999999),0,33);
-                $engine->query("INSERT INTO users (username, password, mail, motto, rank, look, gender, seckey, ip_last, ip_reg, account_created, last_online, auth_ticket) VALUES('" . $username . "', '" . $password . "', '" . $email . "', '" . $motto . "', '" . $rank . "', '" . $figure . "', '" . $gender . "', '" . $seckey . "', '" . $_SERVER['REMOTE_ADDR'] . "', '" . $_SERVER['REMOTE_ADDR'] . "', '" . time() . "', '" . time() . "', '" . $sessionKey . "')");
+               $stmt = $engine->prepare("INSERT INTO users (username, password, mail, motto, rank, look, gender, seckey, ip_last, ip_reg, account_created, last_online, auth_ticket) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)");
+               $stmt->execute([$username, $password, $email, $motto, $rank, $figure, $gender, $seckey, $_SERVER['REMOTE_ADDR'], $_SERVER['REMOTE_ADDR'], time(), time(), $sessionKey]);
                 $id = $engine->insert_id();
-                $engine->query("INSERT INTO users_currency (user_id, type, amount) VALUES('".$id."', '0', '".$credits."'), ('".$id."', '5', '".$pixels."')");
+                $stmt = $engine->prepare("INSERT INTO users_currency (user_id, type, amount) VALUES(?,0,?),(?,5,?)");
+                $stmt->execute([$id, $credits, $id, $pixels]);
                 unset($sessionKey);
 
        }
@@ -458,10 +462,14 @@ class users implements iUsers
 	final public function deleteUser($k) 	
 	{ 		
 		global $engine; 		 		
-               $engine->query("DELETE FROM users WHERE id = '" . $k . "' LIMIT 1");
-               $engine->query("DELETE FROM users_currency WHERE user_id = '" . $k . "'");
-               $engine->query("DELETE FROM items WHERE userid = '" . $k . "' LIMIT 1");
-               $engine->query("DELETE FROM rooms WHERE ownerid = '" . $k . "' LIMIT 1");
+               $stmt = $engine->prepare("DELETE FROM users WHERE id = ? LIMIT 1");
+               $stmt->execute([$k]);
+               $stmt = $engine->prepare("DELETE FROM users_currency WHERE user_id = ?");
+               $stmt->execute([$k]);
+               $stmt = $engine->prepare("DELETE FROM items WHERE userid = ? LIMIT 1");
+               $stmt->execute([$k]);
+               $stmt = $engine->prepare("DELETE FROM rooms WHERE ownerid = ? LIMIT 1");
+               $stmt->execute([$k]);
        }
 	  	
 	final public function updateUser($k, $key, $value) 	
@@ -470,18 +478,23 @@ class users implements iUsers
                if($key == 'credits' || $key == 'activity_points')
                {
                        $type = ($key == 'credits') ? 0 : 5;
-                       if($engine->num_rows("SELECT * FROM users_currency WHERE user_id = '".$k."' AND type = '".$type."'") > 0)
+                       $stmt = $engine->prepare("SELECT 1 FROM users_currency WHERE user_id = ? AND type = ?");
+                       $stmt->execute([$k, $type]);
+                       if($stmt->rowCount() > 0)
                        {
-                               $engine->query("UPDATE users_currency SET amount = '".$engine->secure($value)."' WHERE user_id = '".$k."' AND type = '".$type."'");
+                               $stmt = $engine->prepare("UPDATE users_currency SET amount = ? WHERE user_id = ? AND type = ?");
+                               $stmt->execute([$value, $k, $type]);
                        }
                        else
                        {
-                               $engine->query("INSERT INTO users_currency (user_id, type, amount) VALUES('".$k."','".$type."','".$engine->secure($value)."')");
+                               $stmt = $engine->prepare("INSERT INTO users_currency (user_id, type, amount) VALUES(?,?,?)");
+                               $stmt->execute([$k, $type, $value]);
                        }
                }
                else
                {
-                       $engine->query("UPDATE users SET " . $key . " = '" . $engine->secure($value) . "' WHERE id = '" . $k . "' LIMIT 1");
+                       $stmt = $engine->prepare("UPDATE users SET {$key} = ? WHERE id = ? LIMIT 1");
+                       $stmt->execute([$value, $k]);
                }
                $_SESSION['user'][$key] = $engine->secure($value);
        }

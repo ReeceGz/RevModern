@@ -61,6 +61,11 @@ class engine
         return $this->connection->query($sql);
     }
 
+    public function prepare($sql)
+    {
+        return $this->connection->prepare($sql);
+    }
+
     public function num_rows($sql)
     {
         return $this->query($sql)->rowCount();
