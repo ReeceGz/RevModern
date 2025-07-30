@@ -443,36 +443,56 @@ class users implements iUsers
 		
 	/*-------------------------------Adding/Updating/Deleting users-------------------------------------*/ 
 	
-	final public function addUser($username, $password, $email, $motto, $credits, $pixels, $rank, $figure, $gender, $seckey) 	
-	{ 		
-		global $engine; 		 		 		 		
-		$sessionKey = 'RevCMS-'.rand(9,999).'/'.substr(sha1(time()).'/'.rand(9,9999999).'/'.rand(9,9999999).'/'.rand(9,9999999),0,33);
-		$engine->query("INSERT INTO users (username, password, mail, motto, credits, activity_points, rank, look, gender, seckey, ip_last, ip_reg, account_created, last_online, auth_ticket) VALUES('" . $username . "', '" . $password . "', '" . $email . "', '" . $motto . "', '" . $credits . "', '" . $pixels . "', '" . $rank . "', '" . $figure . "', '" . $gender . "', '" . $seckey . "', '" . $_SERVER['REMOTE_ADDR'] . "', '" . $_SERVER['REMOTE_ADDR'] . "', '" . time() . "', '" . time() . "', '" . $sessionKey . "')"); 	
-		unset($sessionKey);	
-		 			 
-	}	 		 	
+       final public function addUser($username, $password, $email, $motto, $credits, $pixels, $rank, $figure, $gender, $seckey)
+       {
+                global $engine;
+                $sessionKey = 'RevCMS-'.rand(9,999).'/'.substr(sha1(time()).'/'.rand(9,9999999).'/'.rand(9,9999999).'/'.rand(9,9999999),0,33);
+                $engine->query("INSERT INTO users (username, password, mail, motto, rank, look, gender, seckey, ip_last, ip_reg, account_created, last_online, auth_ticket) VALUES('" . $username . "', '" . $password . "', '" . $email . "', '" . $motto . "', '" . $rank . "', '" . $figure . "', '" . $gender . "', '" . $seckey . "', '" . $_SERVER['REMOTE_ADDR'] . "', '" . $_SERVER['REMOTE_ADDR'] . "', '" . time() . "', '" . time() . "', '" . $sessionKey . "')");
+                $id = $engine->insert_id();
+                $engine->query("INSERT INTO users_currency (user_id, type, amount) VALUES('".$id."', '0', '".$credits."'), ('".$id."', '5', '".$pixels."')");
+                unset($sessionKey);
+
+       }
 		 
 	final public function deleteUser($k) 	
 	{ 		
 		global $engine; 		 		
-	 	$engine->query("DELETE FROM users WHERE id = '" . $k . "' LIMIT 1"); 		
-	 	$engine->query("DELETE FROM items WHERE userid = '" . $k . "' LIMIT 1"); 		
-		$engine->query("DELETE FROM rooms WHERE ownerid = '" . $k . "' LIMIT 1"); 	
-	} 	
+               $engine->query("DELETE FROM users WHERE id = '" . $k . "' LIMIT 1");
+               $engine->query("DELETE FROM users_currency WHERE user_id = '" . $k . "'");
+               $engine->query("DELETE FROM items WHERE userid = '" . $k . "' LIMIT 1");
+               $engine->query("DELETE FROM rooms WHERE ownerid = '" . $k . "' LIMIT 1");
+       }
 	  	
 	final public function updateUser($k, $key, $value) 	
 	{ 		
 	 	global $engine; 		 		
-	 	$engine->query("UPDATE users SET " . $key . " = '" . $engine->secure($value) . "' WHERE id = '" . $k . "' LIMIT 1");
-	 	$_SESSION['user'][$key] = $engine->secure($value);		
-	} 
+               if($key == 'credits' || $key == 'activity_points')
+               {
+                       $type = ($key == 'credits') ? 0 : 5;
+                       if($engine->num_rows("SELECT * FROM users_currency WHERE user_id = '".$k."' AND type = '".$type."'") > 0)
+                       {
+                               $engine->query("UPDATE users_currency SET amount = '".$engine->secure($value)."' WHERE user_id = '".$k."' AND type = '".$type."'");
+                       }
+                       else
+                       {
+                               $engine->query("INSERT INTO users_currency (user_id, type, amount) VALUES('".$k."','".$type."','".$engine->secure($value)."')");
+                       }
+               }
+               else
+               {
+                       $engine->query("UPDATE users SET " . $key . " = '" . $engine->secure($value) . "' WHERE id = '" . $k . "' LIMIT 1");
+               }
+               $_SESSION['user'][$key] = $engine->secure($value);
+       }
 	
 	/*-------------------------------Handling user information-------------------------------------*/ 	 
 	
 	final public function cacheUser($k)
 	{
 		global $engine; 		 	
-		$userInfo = $engine->fetch_assoc("SELECT username, rank, motto, mail, credits, activity_points, look, auth_ticket, ip_last FROM users WHERE id = '" . $k . "' LIMIT 1");
+               $userInfo = $engine->fetch_assoc("SELECT username, rank, motto, mail, look, auth_ticket, ip_last FROM users WHERE id = '" . $k . "' LIMIT 1");
+               $userInfo['credits'] = $engine->result("SELECT amount FROM users_currency WHERE user_id = '".$k."' AND type = '0' LIMIT 1");
+               $userInfo['activity_points'] = $engine->result("SELECT amount FROM users_currency WHERE user_id = '".$k."' AND type = '5' LIMIT 1");
 		
 		foreach($userInfo as $key => $value)
 		{
@@ -486,20 +506,28 @@ class users implements iUsers
 		$_SESSION['user'][$key] = $engine->secure($value);
 	}
 
-	final public function getInfo($k, $key)
-	{
-		global $engine;
-		if(!isset($_SESSION['user'][$key]))
-		{
-			$value = $engine->result("SELECT $key FROM users WHERE id = '" . $engine->secure($k) . "' LIMIT 1"); 
-			if($value != null)
-			{			
-				$this->setInfo($key, $value);
-			}
-		}
-			
-		return $_SESSION['user'][$key];
-	}
+       final public function getInfo($k, $key)
+       {
+               global $engine;
+               if(!isset($_SESSION['user'][$key]))
+               {
+                        if($key == 'credits' || $key == 'activity_points')
+                        {
+                                $type = ($key == 'credits') ? 0 : 5;
+                                $value = $engine->result("SELECT amount FROM users_currency WHERE user_id = '" . $engine->secure($k) . "' AND type = '".$type."' LIMIT 1");
+                        }
+                        else
+                        {
+                                $value = $engine->result("SELECT $key FROM users WHERE id = '" . $engine->secure($k) . "' LIMIT 1");
+                        }
+                        if($value != null)
+                        {
+                                $this->setInfo($key, $value);
+                        }
+               }
+
+               return $_SESSION['user'][$key];
+       }
 	
 	
 	

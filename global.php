@@ -2,10 +2,10 @@
 
 	// Special Functions
 	
-	function filter($var)
-	{
-		return mysql_real_escape_string(stripslashes(htmlspecialchars($var)));
-	}
+function filter($var)
+{
+    return addslashes(stripslashes(htmlspecialchars($var, ENT_QUOTES)));
+}
 
 if(!defined('IN_INDEX')) { die('Sorry, you cannot access this file.'); }
 if(isset($_SERVER['HTTP_CF_CONNECTING_IP'])) { $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP']; }
@@ -106,8 +106,50 @@ use Revolution as Rev;
 	
 	session_start();
 	
-	$engine->Initiate();
-	
-	$template->Initiate();
+$engine->Initiate();
+
+$template->Initiate();
+
+$pdo = $engine->getConnection();
+
+function mysql_query($query)
+{
+    global $pdo;
+    return $pdo->query($query);
+}
+
+function mysql_num_rows($result)
+{
+    return $result->rowCount();
+}
+
+function mysql_fetch_assoc($result)
+{
+    return $result->fetch(\PDO::FETCH_ASSOC);
+}
+
+function mysql_fetch_array($result, $type = \PDO::FETCH_BOTH)
+{
+    return $result->fetch($type);
+}
+
+function mysql_result($result, $row = 0, $field = 0)
+{
+    $data = $result->fetch(\PDO::FETCH_NUM);
+    return $data[$field] ?? null;
+}
+
+function mysql_free_result($result)
+{
+    if($result instanceof \PDOStatement){
+        $result->closeCursor();
+    }
+}
+
+function mysql_real_escape_string($string)
+{
+    global $pdo;
+    return substr($pdo->quote($string), 1, -1);
+}
 	
 ?>
