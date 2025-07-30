@@ -1,0 +1,5 @@
+Version 1.8 - RevCMS for PhoenixEmulator and Database.
+
+Creator(s): Kryptos
+
+Please read file: app/management/Documentation.txt
