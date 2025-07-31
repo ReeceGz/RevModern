@@ -17,7 +17,7 @@
            <br />
 		   [ <a href='dash'>Return to Dashboard</a> ] [ <a href='logout.php'>Log out</a> ]<br /> <br />
             <p>
-                        <?php if($engine->result("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'") >= 7)
+                        <?php if($_SESSION['user']['rank'] >= 7)
 			{ ?>
 			Player Management <br /> <img src='../app/tpl/skins/<?php echo $_CONFIG['template']['style']; ?>/hk/images/line.png'> <br />
 			&raquo; <a href='sub'>Last 50 VIP purchases</a> <br />
@@ -28,7 +28,7 @@
 			Administration <br /> <img src='../app/tpl/skins/<?php echo $_CONFIG['template']['style']; ?>/hk/images/line.png'> <br />
 			&raquo; <a href='news'>Post news article</a><br />
 			<br />
-                        <?php } if($engine->result("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'") >= 5) { ?>
+                        <?php } if($_SESSION['user']['rank'] >= 5) { ?>
 			Moderation <br /> <img src='../app/tpl/skins/<?php echo $_CONFIG['template']['style']; ?>/hk/images/line.png'> <br />
 			&raquo; <a href='banlist'>Ban List</a> <br />
 			&raquo; <a href='ip'>IP lookup</a> <br />
@@ -56,7 +56,8 @@
           <table width="100%">
 <tr><td><b>Username</b></td><td><b>Reason</b></td><td><b>Banned by</b></td><td><b>Value</b></td></tr>
 <?php
-        $stmt = $engine->query("SELECT * FROM bans");
+        $stmt = $engine->prepare("SELECT * FROM bans");
+        $stmt->execute();
         while($two = $stmt->fetch())
         {
                 echo "<tr><td>" . $two['value'] ."</td><td>" . $two['reason'] . "</td><td>" . $two['added_by'] . "</td><td><a href='?url=banlist&unban=" . $two['id'] . "'><b>Unban</b></a></td></tr>";
