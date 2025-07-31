@@ -34,15 +34,20 @@ class users implements iUsers
 		return preg_match("/^[a-z0-9_\.-]+@([a-z0-9]+([\-]+[a-z0-9]+)*\.)+[a-z]{2,7}$/i", $email); 	
 	} 	 	
 	
-	final public function validSecKey($seckey)
-	{
-		if(is_numeric($seckey) && strlen($seckey) == 4)
-		{
-			return true;
-		}
-		
-		return false;
-	}
+        final public function validSecKey($seckey)
+        {
+                if(is_numeric($seckey) && strlen($seckey) == 4)
+                {
+                        return true;
+                }
+
+                return false;
+        }
+
+        private function validCsrf()
+        {
+                return isset($_POST['csrf_token'], $_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']);
+        }
 	
         final public function nameTaken($username)
         {
@@ -108,9 +113,14 @@ class users implements iUsers
 	{
 		global $core, $template, $_CONFIG;
 		
-		if(isset($_POST['register']))
-		{
-			unset($template->form->error);
+                if(isset($_POST['register']))
+                {
+                        if(!$this->validCsrf())
+                        {
+                                $template->form->error = 'Invalid CSRF token';
+                                return;
+                        }
+                        unset($template->form->error);
 			
 			$template->form->setData();
 				
@@ -207,9 +217,14 @@ class users implements iUsers
 	{
 		global $template, $_CONFIG, $core;
 		
-		if(isset($_POST['login']))
-		{
-			$template->form->setData();
+                if(isset($_POST['login']))
+                {
+                        if(!$this->validCsrf())
+                        {
+                                $template->form->error = 'Invalid CSRF token';
+                                return;
+                        }
+                        $template->form->setData();
 			unset($template->form->error);
 			
 			if($this->nameTaken($template->form->log_username))
@@ -317,8 +332,13 @@ class users implements iUsers
 	{
 		global $template, $_CONFIG, $core, $engine;
 		
-		if(isset($_POST['account']))
-		{
+                if(isset($_POST['account']))
+                {
+                        if(!$this->validCsrf())
+                        {
+                                $template->form->error = 'Invalid CSRF token';
+                                return;
+                        }
 		
 			if(isset($_POST['acc_motto']) && strlen($_POST['acc_motto']) < 30 && $_POST['acc_motto'] != $this->getInfo($_SESSION['user']['id'], 'motto'))
 			{
@@ -387,8 +407,13 @@ class users implements iUsers
 	{
 		global $template, $_CONFIG, $core;
 		
-		if(isset($_POST['forgot']))
-		{
+                if(isset($_POST['forgot']))
+                {
+                        if(!$this->validCsrf())
+                        {
+                                $template->form->error = 'Invalid CSRF token';
+                                return;
+                        }
 		
 			$template->form->setData();
 			unset($template->form->error);

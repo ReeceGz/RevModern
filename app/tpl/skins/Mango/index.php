@@ -9,7 +9,8 @@
 <strong>Welcome to {hotelName}!</strong><br/> 
 Please login with your account or click Register to create one
 <div style="height:5px;"></div> 
-<form action="index" method="post"> 
+<form action="index" method="post">
+<input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"/>
 <table width="200" border="0"> 
 <tr> 
 <td>Username<br/> 
