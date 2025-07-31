@@ -163,10 +163,10 @@ class core implements iCore
 		}
 	}
 	
-        final public function hashed($password)
-        {
-                return md5($password);
-        }
+       final public function hashed($password)
+       {
+               return hash('sha256', $password);
+       }
 
         final public function passwordHash($password)
         {
