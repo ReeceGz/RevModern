@@ -261,6 +261,10 @@ class users implements iUsers
 		}
 	}
 	
+	final public function loginHK()
+	{
+		global $template, $_CONFIG, $core;
+		
         final public function loginHK()
         {
                 global $template, $_CONFIG, $core;

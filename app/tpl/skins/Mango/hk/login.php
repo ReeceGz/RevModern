@@ -14,6 +14,12 @@
 			 <?php echo $template->form->error; ?>
 			
 			<br />
+				<form method="post" action="index.php?url=login">
+				Username: <br /> <input type="text" name="username" class="login"/> <br /> <br />
+                                Password: <br /> <input type="password" name="password" class="login"/> <br />
+                                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"/>
+                                <br /><br />
+                                                <input type="submit" value="Log into ASE" name="login" class="login"/>
                                 <form method="post" action="index.php?url=login">
                                 <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"/>
                                 Username: <br /> <input type="text" name="username" class="login"/> <br /> <br />
