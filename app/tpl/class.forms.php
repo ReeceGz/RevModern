@@ -101,5 +101,3 @@ class forms implements iForms
         }
 	
 }
-
-?>

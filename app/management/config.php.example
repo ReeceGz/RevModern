@@ -25,6 +25,6 @@ $_CONFIG['hotel']['furni_data'] = 'http://localhost/swf/gamedata/furnidata.txt';
 $_CONFIG['hotel']['swf_folder'] = 'http://localhost/swf/gordon';
 $_CONFIG['hotel']['web_build'] = 'default';
 
-$_CONFIG['template']['style'] = 'Mango';
+// Name of the template folder located in app/tpl/skins/
+$_CONFIG['template']['style'] = 'default';
 
-?>
