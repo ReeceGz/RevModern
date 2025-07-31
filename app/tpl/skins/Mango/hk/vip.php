@@ -55,6 +55,12 @@
           <?php
         if(isset($_POST['give']))
         {
+                $stmt = $engine->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+                $stmt->execute([$_POST['username']]);
+                if($stmt->fetchColumn() == 0){ echo "User does not exist."; }
+                else {
+                $stmt = $engine->prepare("UPDATE users SET rank = 2, credits = credits + '200000', activity_points = activity_points + '200000' WHERE username = ?");
+                $stmt->execute([$_POST['username']]);
                 if(!$users->validCsrf())
                 {
                         echo 'Invalid CSRF token';

@@ -1,11 +1,6 @@
 <?php
 
-	// Special Functions
-	
-function filter($var)
-{
-    return addslashes(stripslashes(htmlspecialchars($var, ENT_QUOTES)));
-}
+        // Special Functions removed: input handling now done with parameter binding and htmlspecialchars
 
 if(!defined('IN_INDEX')) { die('Sorry, you cannot access this file.'); }
 if(isset($_SERVER['HTTP_CF_CONNECTING_IP'])) { $_SERVER['REMOTE_ADDR'] = $_SERVER['HTTP_CF_CONNECTING_IP']; }

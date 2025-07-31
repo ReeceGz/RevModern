@@ -73,6 +73,10 @@ if(isset($_POST["proceed"]))
         $author = $stmt->fetchColumn();
         $engine->free_result($stmt);
         $stmt = $engine->prepare("INSERT INTO cms_news (title,shortstory,longstory,published,image,author, campaign, campaignimg) VALUES (?, ?, ?, ?, ?, ?, 0, 'default')");
+        $stmt->execute([$_SESSION["title"], $_SESSION["shortstory"], $_SESSION["longstory"], time(), $_POST["topstory"], $author]);
+	unset($_SESSION["title"], $_SESSION["shortstory"], $_SESSION["longstory"]);
+	header("Location: ".$_CONFIG['hotel']['url']."/ase/");
+	exit;
         $stmt->execute([filter($_SESSION["title"]), filter($_SESSION["shortstory"]), filter($_SESSION["longstory"]), time(), filter($_POST["topstory"]), filter($author)]);
         unset($_SESSION["title"], $_SESSION["shortstory"], $_SESSION["longstory"]);
         header("Location: ".$_CONFIG['hotel']['url']."/ase/");
@@ -94,14 +98,14 @@ if(isset($_POST["proceed"]))
 				continue;
 			}	
 	
-			echo '<option value="' . $file . '"';
+                        echo '<option value="' . htmlspecialchars($file, ENT_QUOTES) . '"';
 	
-			if (isset($_POST['topstory']) && $_POST['topstory'] == $file)
+                        if (isset($_POST['topstory']) && $_POST['topstory'] == $file)
 			{
 				echo ' selected';
 			}
 			
-			echo '>' . $file . '</option>';
+                        echo '>' . htmlspecialchars($file, ENT_QUOTES) . '</option>';
 		}
 	}
 
@@ -110,7 +114,7 @@ if(isset($_POST["proceed"]))
 	if(isset($_POST["check"]))
 	{
 		echo '<br /> <br /> <input type="submit" value="  Check image  " name="check" /> <br /><br />';
-		echo '<font size="3">Topstory image<br /></font><img src="ts/' . $_POST["topstory"] . '" align="right />';
+                echo '<font size="3">Topstory image<br /></font><img src="ts/' . htmlspecialchars($_POST["topstory"], ENT_QUOTES) . '" align="right />';
 		echo '</center> <align="right"> <br /> <br /> <input type="submit" value="  Proceed (use image)  " name="proceed" /> <br />';
 		echo '</form>';
 	}
