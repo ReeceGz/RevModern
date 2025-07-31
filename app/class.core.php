@@ -151,13 +151,13 @@ class core implements iCore
 				if($k == 'balist')
 				{
 						
-					if(isset($_GET["unban"]))
-					{
-						$user = $engine->secure($_GET["unban"]);
-						$engine->query("DELETE FROM bans WHERE id = '" . $user . "'");
-						header("Location: ".$_CONFIG['hotel']['url']."/ase/banlist");
-						exit;
-					}	
+                                        if(isset($_GET["unban"]))
+                                        {
+                                                $stmt = $engine->prepare("DELETE FROM bans WHERE id = ?");
+                                                $stmt->execute([$_GET["unban"]]);
+                                                header("Location: ".$_CONFIG['hotel']['url']."/ase/banlist");
+                                                exit;
+                                        }
 				}
 			}
 		}
