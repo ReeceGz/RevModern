@@ -6,3 +6,4 @@ This repository contains the RevCMS source code. Before running the application 
 2. Edit `config.php` and replace the placeholder values with your database credentials and other hotel information.
 
 After configuration you can point your web server to `index.php` and start the CMS.
+The default website template is located in `app/tpl/skins/default/`.
