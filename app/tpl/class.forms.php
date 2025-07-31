@@ -83,7 +83,8 @@ class forms implements iForms
 	{
 		global $template, $engine;
                 $a = 1;
-                $stmt = $engine->query("SELECT title, id, published, shortstory, image FROM cms_news ORDER BY id DESC LIMIT 5");
+                $stmt = $engine->prepare("SELECT title, id, published, shortstory, image FROM cms_news ORDER BY id DESC LIMIT 5");
+                $stmt->execute();
 
         while($news = $stmt->fetch())
         {

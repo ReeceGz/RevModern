@@ -17,7 +17,7 @@
            <br />
 		   [ <a href='dash'>Return to Dashboard</a> ] [ <a href='logout.php'>Log out</a> ]<br /> <br />
             <p>
-                        <?php if($engine->result("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'") >= 7)
+                        <?php if($_SESSION['user']['rank'] >= 7)
 			{ ?>
 			Player Management <br /> <img src='../app/tpl/skins/<?php echo $_CONFIG['template']['style']; ?>/hk/images/line.png'> <br />
 			&raquo; <a href='sub'>Last 50 VIP purchases</a> <br />
@@ -28,7 +28,7 @@
 			Administration <br /> <img src='../app/tpl/skins/<?php echo $_CONFIG['template']['style']; ?>/hk/images/line.png'> <br />
 			&raquo; <a href='news'>Post news article</a><br />
 			<br />
-                        <?php } if($engine->result("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'") >= 5) { ?>
+                        <?php } if($_SESSION['user']['rank'] >= 5) { ?>
 			Moderation <br /> <img src='../app/tpl/skins/<?php echo $_CONFIG['template']['style']; ?>/hk/images/line.png'> <br />
 			&raquo; <a href='banlist'>Ban List</a> <br />
 			&raquo; <a href='ip'>IP lookup</a> <br />
@@ -54,7 +54,7 @@
           <br />         
         <?php
 
-if($engine->result("SELECT rank FROM users WHERE id = '" . $_SESSION['user']['id'] . "'") >= 7)
+if($_SESSION['user']['rank'] >= 7)
 {
 	if(isset($_GET["done"]))
 	{

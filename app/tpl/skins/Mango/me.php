@@ -38,7 +38,8 @@ Welcome back to {hotelName}, {username}!
 <div id="main_left"> 
 
 <?php
-        $stmtRanks = $engine->query("SELECT id,name FROM ranks WHERE id > 3 ORDER BY id DESC");
+        $stmtRanks = $engine->prepare("SELECT id,name FROM ranks WHERE id > 3 ORDER BY id DESC");
+        $stmtRanks->execute();
         while($Ranks = $stmtRanks->fetch())
         {
                 echo "<div class=\"content-box\" style=\"background-color:#fff\"><div class=\"content-box-deep-blue\"><h2 class=\"title\" style=\"padding:0;line-height:30px;\">{$Ranks['name']}s</h2></div><div class=\"content-box-content\"><p>";
