@@ -59,7 +59,7 @@
         if(isset($_POST['get_ip']))
         {
                 $stmt = $engine->prepare("SELECT ip_last FROM users WHERE username = ?");
-                $stmt->execute([filter($_POST['username'])]);
+                $stmt->execute([$_POST['username']]);
                 $derp = $stmt->fetch();
                 $engine->free_result($stmt);
                 $stmt = $engine->prepare("SELECT * FROM users WHERE ip_last = ?");
@@ -68,7 +68,7 @@
 
                 echo "There are " . count($accounts) . " account(s) on this IP. <br /><br />";
                 foreach($accounts as $ferp) {
-                echo "<tr><td>" . $ferp['username'] . "</td><td>" . $ferp['mail'] . "</td><td>" . $ferp['ip_last'] . "</td></tr>"; }
+                echo "<tr><td>" . htmlspecialchars($ferp['username'], ENT_QUOTES) . "</td><td>" . htmlspecialchars($ferp['mail'], ENT_QUOTES) . "</td><td>" . htmlspecialchars($ferp['ip_last'], ENT_QUOTES) . "</td></tr>"; }
                 $engine->free_result($stmt);
         } ?>
 	

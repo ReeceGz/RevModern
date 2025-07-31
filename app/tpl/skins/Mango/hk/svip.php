@@ -58,11 +58,11 @@
         if(isset($_POST['give']))
         {
                 $stmt = $engine->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
-                $stmt->execute([filter($_POST['username'])]);
+                $stmt->execute([$_POST['username']]);
                 if($stmt->fetchColumn() == 0){ echo "User does not exist."; }
                 else {
                 $stmt = $engine->prepare("UPDATE users SET rank = 3, credits = credits + '2000000', activity_points = activity_points + '2000000' WHERE username = ?");
-                $stmt->execute([filter($_POST['username'])]); }
+                $stmt->execute([$_POST['username']]); }
         }
 	
 ?>

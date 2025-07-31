@@ -57,7 +57,7 @@
         if(isset($_POST['update']))
 		{
                         $stmt = $engine->prepare("UPDATE users SET username = ?, mail = ?, motto = ?, rank = ?, credits = ?, activity_points = ? WHERE username = ?");
-                        $stmt->execute([filter($_POST["username"]), filter($_POST["email"]), filter($_POST["motto"]), filter($_POST["rank"]), filter($_POST["credits"]), filter($_POST["pixels"]), filter($_POST["username_current"])]);
+                        $stmt->execute([$_POST["username"], $_POST["email"], $_POST["motto"], $_POST["rank"], $_POST["credits"], $_POST["pixels"], $_POST["username_current"]]);
 		}
 		
 
@@ -65,40 +65,40 @@ if(isset($_POST['lookup']))
 {	
 	
         $stmt = $engine->prepare("SELECT * FROM users WHERE username = ?");
-        $stmt->execute([filter($_POST["l_username"])]);
+        $stmt->execute([$_POST["l_username"]]);
         if($stmt->rowCount() == 0) { echo "User does not exist."; }
         else {
                                 $two = $stmt->fetch();
 ?>
-	Editing account: <?php echo $username; ?></a>
+        Editing account: <?php echo htmlspecialchars($username, ENT_QUOTES); ?></a>
 	<form method='post'>
-	<input type="hidden" name="username_current" value="<?php echo $_POST['l_username']; ?>" />
+        <input type="hidden" name="username_current" value="<?php echo htmlspecialchars($_POST['l_username'], ENT_QUOTES); ?>" />
 	
 		<table style="width: 100%;">
 				
 			<tr>
 				<td>Username</td></td>
-				<td><input type="text" name="username" value="<?php echo $_POST['l_username']; ?>" style="width: 95%" /></td>
+                                <td><input type="text" name="username" value="<?php echo htmlspecialchars($_POST['l_username'], ENT_QUOTES); ?>" style="width: 95%" /></td>
 			</tr>
 			<tr>
 				<td>Email</td>
-				<td><input type="text" name="email" value="<?php echo $two['mail']; ?>" style="width: 95%" /></td>
+                                <td><input type="text" name="email" value="<?php echo htmlspecialchars($two['mail'], ENT_QUOTES); ?>" style="width: 95%" /></td>
 			</tr>
 			<tr>
 				<td>Motto</td>
-				<td><input type="text" name="motto" value="<?php echo $two['motto']; ?>" style="width: 95%" /></td>
+                                <td><input type="text" name="motto" value="<?php echo htmlspecialchars($two['motto'], ENT_QUOTES); ?>" style="width: 95%" /></td>
 			</tr>
 			<tr>
 				<td>Rank</td>
-				<td><input type="text" name="rank" value="<?php echo $two['rank']; ?>" style="width: 95%" /></td>
+                                <td><input type="text" name="rank" value="<?php echo htmlspecialchars($two['rank'], ENT_QUOTES); ?>" style="width: 95%" /></td>
 			</tr>
 			<tr>
 				<td>Credits</td>
-				<td><input type="text" name="credits" value="<?php echo $two['credits']; ?>" style="width: 95%" /></td>
+                                <td><input type="text" name="credits" value="<?php echo htmlspecialchars($two['credits'], ENT_QUOTES); ?>" style="width: 95%" /></td>
 			</tr>
 			<tr>
 				<td>Pixels</td>
-				<td><input type="text" name="pixels" value="<?php echo $two['activity_points']; ?>" style="width: 95%" /></td>
+                                <td><input type="text" name="pixels" value="<?php echo htmlspecialchars($two['activity_points'], ENT_QUOTES); ?>" style="width: 95%" /></td>
 			</tr>
 		</table>
 		<input type="submit" value="  Update account  " name="update"/>
