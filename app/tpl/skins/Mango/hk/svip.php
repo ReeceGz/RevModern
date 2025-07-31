@@ -57,17 +57,25 @@
      
         if(isset($_POST['give']))
         {
-                $stmt = $engine->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
-                $stmt->execute([filter($_POST['username'])]);
-                if($stmt->fetchColumn() == 0){ echo "User does not exist."; }
-                else {
-                $stmt = $engine->prepare("UPDATE users SET rank = 3, credits = credits + '2000000', activity_points = activity_points + '2000000' WHERE username = ?");
-                $stmt->execute([filter($_POST['username'])]); }
+                if(!$users->validCsrf())
+                {
+                        echo 'Invalid CSRF token';
+                }
+                else
+                {
+                        $stmt = $engine->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+                        $stmt->execute([filter($_POST['username'])]);
+                        if($stmt->fetchColumn() == 0){ echo "User does not exist."; }
+                        else {
+                        $stmt = $engine->prepare("UPDATE users SET rank = 3, credits = credits + '2000000', activity_points = activity_points + '2000000' WHERE username = ?");
+                        $stmt->execute([filter($_POST['username'])]); }
+                }
         }
 	
 ?>
-				<form method="post">
-				Username <br /> <input type="text" name="username" /> <br /> <br />
+                                <form method="post">
+                                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"/>
+                                Username <br /> <input type="text" name="username" /> <br /> <br />
 				<input type="submit" value="  Give Super VIP  " name="give"/>
 				</form>
 
