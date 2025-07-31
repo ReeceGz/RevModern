@@ -68,11 +68,15 @@ class forms implements iForms
                                 }
                                 $engine->free_result($stmt);
 				
-				$news = $engine->fetch_assoc("SELECT title, longstory, author, published FROM cms_news WHERE id = '" . $engine->secure($_GET['id']) . "' LIMIT 1");
-				$template->setParams('newsTitle', $news['title']);
-				$template->setParams('newsContent', $news['longstory']);
-				$template->setParams('newsAuthor', $news['author']);
-				$template->setParams('newsDate', date("d-m-y", $news['published']));
+                                $stmt = $engine->prepare("SELECT title, longstory, author, published FROM cms_news WHERE id = :id LIMIT 1");
+                                $stmt->bindValue(':id', $_GET['id'], \PDO::PARAM_INT);
+                                $stmt->execute();
+                                $news = $stmt->fetch();
+                                $template->setParams('newsTitle', $news['title']);
+                                $template->setParams('newsContent', $news['longstory']);
+                                $template->setParams('newsAuthor', $news['author']);
+                                $template->setParams('newsDate', date("d-m-y", $news['published']));
+                                $engine->free_result($stmt);
 			
 				unset($result);
 				unset($news1);
