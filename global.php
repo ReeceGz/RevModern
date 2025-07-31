@@ -56,9 +56,16 @@ use Revolution as Rev;
 		
 		require_once A . 'class.template.php';
 		
-		//MANAGEMENT
-		
-                        require_once A . M . 'config.php';
+                //MANAGEMENT
+
+                        $configFile = A . M . 'config.php';
+                        if (!file_exists($configFile)) {
+                            echo "Error: missing configuration.\n";
+                            echo "Please copy app/management/config.php.example to app/management/config.php and configure it.";
+                            exit(1);
+                        }
+
+                        require_once $configFile;
 
                         require_once __DIR__ . '/vendor/autoload.php';
 				
