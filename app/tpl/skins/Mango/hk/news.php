@@ -65,16 +65,20 @@ if($_SESSION['user']['rank'] >= 7)
 			exit;
 		}
 	}
-	if(isset($_POST["step1"]))
-	{
-		if($_POST["title"] == NULL || $_POST["shortstory"] == NULL || $_POST["longstory"] == NULL)
-		{
-			echo "<h2>Please fill in all the fields!</h2>";
-		}
-		else
-		{
-			$_SESSION["title"] = filter($_POST["title"]);
-			$_SESSION["shortstory"] = filter($_POST["shortstory"]);
+        if(isset($_POST["step1"]))
+        {
+                if(!$users->validCsrf())
+                {
+                        echo 'Invalid CSRF token';
+                }
+                elseif($_POST["title"] == NULL || $_POST["shortstory"] == NULL || $_POST["longstory"] == NULL)
+                {
+                        echo "<h2>Please fill in all the fields!</h2>";
+                }
+                else
+                {
+                        $_SESSION["title"] = filter($_POST["title"]);
+                        $_SESSION["shortstory"] = filter($_POST["shortstory"]);
                         $_SESSION["longstory"] = filter($_POST["longstory"]);
 			
 			header("Location: ".$_CONFIG['hotel']['url']."/ase/news2");
@@ -95,8 +99,9 @@ if($_SESSION['user']['rank'] >= 7)
 		  });
 		  </script>
 
-	<form method="post">
-	Title of the news article <br />
+        <form method="post">
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"/>
+        Title of the news article <br />
 	<input type="text" name="title"/> <br /> <br />
 	Short story <br />
 	<input type="text" name="shortstory"/> <br /> <br />
