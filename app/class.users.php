@@ -427,7 +427,7 @@ class users implements iUsers
 	
 	final public function createSSO($k) 	
 	{ 	 	
-		$sessionKey = 'RevCMS-'.rand(9,999).'/'.substr(sha1(time()).'/'.rand(9,9999999).'/'.rand(9,9999999).'/'.rand(9,9999999),0,33);
+               $sessionKey = 'RevCMS-'.bin2hex(random_bytes(16));
 		
 		$this->updateUser($k, 'auth_ticket', $sessionKey);
 		
@@ -439,7 +439,7 @@ class users implements iUsers
        final public function addUser($username, $password, $email, $motto, $credits, $pixels, $rank, $figure, $gender, $seckey)
        {
                 global $engine;
-                $sessionKey = 'RevCMS-'.rand(9,999).'/'.substr(sha1(time()).'/'.rand(9,9999999).'/'.rand(9,9999999).'/'.rand(9,9999999),0,33);
+               $sessionKey = 'RevCMS-'.bin2hex(random_bytes(16));
                $stmt = $engine->prepare("INSERT INTO users (username, password, mail, motto, rank, look, gender, seckey, ip_last, ip_reg, account_created, last_online, auth_ticket) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)");
                $stmt->execute([$username, $password, $email, $motto, $rank, $figure, $gender, $seckey, $_SERVER['REMOTE_ADDR'], $_SERVER['REMOTE_ADDR'], time(), time(), $sessionKey]);
                 $id = $engine->insert_id();
