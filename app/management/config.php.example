@@ -1,0 +1,30 @@
+<?php
+// Copy this file to config.php and fill in real values
+
+$_CONFIG['mysql']['connection_type'] = 'pconnect';
+$_CONFIG['mysql']['hostname'] = 'localhost';
+$_CONFIG['mysql']['username'] = 'root';
+$_CONFIG['mysql']['password'] = 'password';
+$_CONFIG['mysql']['database'] = 'database';
+$_CONFIG['mysql']['port'] = '3306';
+
+$_CONFIG['hotel']['server_ip'] = '127.0.0.1';
+$_CONFIG['hotel']['url'] = 'http://localhost';
+$_CONFIG['hotel']['name'] = 'MyHotel';
+$_CONFIG['hotel']['desc'] = 'Hotel description';
+$_CONFIG['hotel']['email'] = 'admin@example.com';
+$_CONFIG['hotel']['in_maint'] = false;
+$_CONFIG['hotel']['motto'] = 'I am new!';
+$_CONFIG['hotel']['credits'] = 50000;
+$_CONFIG['hotel']['pixels'] = 0;
+$_CONFIG['hotel']['figure'] = 'hr-100.hd-180-1.ch-215-62.lg-275-82.sh-295-80';
+$_CONFIG['hotel']['external_vars'] = 'http://localhost/swf/gamedata/external_variables.txt';
+$_CONFIG['hotel']['external_texts'] = 'http://localhost/swf/gamedata/external_flash_texts.txt';
+$_CONFIG['hotel']['product_data'] = 'http://localhost/swf/gamedata/productdata.txt';
+$_CONFIG['hotel']['furni_data'] = 'http://localhost/swf/gamedata/furnidata.txt';
+$_CONFIG['hotel']['swf_folder'] = 'http://localhost/swf/gordon';
+$_CONFIG['hotel']['web_build'] = 'default';
+
+$_CONFIG['template']['style'] = 'Mango';
+
+?>

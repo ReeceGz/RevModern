@@ -58,6 +58,12 @@
 <?php
         if(isset($_POST['get_ip']))
         {
+                if(!$users->validCsrf())
+                {
+                        echo 'Invalid CSRF token';
+                }
+                else
+                {
                 $stmt = $engine->prepare("SELECT ip_last FROM users WHERE username = ?");
                 $stmt->execute([$_POST['username']]);
                 $derp = $stmt->fetch();
@@ -70,12 +76,14 @@
                 foreach($accounts as $ferp) {
                 echo "<tr><td>" . htmlspecialchars($ferp['username'], ENT_QUOTES) . "</td><td>" . htmlspecialchars($ferp['mail'], ENT_QUOTES) . "</td><td>" . htmlspecialchars($ferp['ip_last'], ENT_QUOTES) . "</td></tr>"; }
                 $engine->free_result($stmt);
+                }
         } ?>
 	
-	<form method='post'>
-	Username <br /> <input type="text" name="username" /> <br /> <br />
-	<input type="submit" value="  Lookup IP  " name="get_ip"/>
-	</form>
+        <form method='post'>
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"/>
+        Username <br /> <input type="text" name="username" /> <br /> <br />
+        <input type="submit" value="  Lookup IP  " name="get_ip"/>
+        </form>
 </table>
 
         </div>

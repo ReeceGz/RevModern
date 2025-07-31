@@ -62,6 +62,12 @@ if(!isset($_SESSION["longstory"]))
 
 if(isset($_POST["proceed"]))
 {
+        if(!$users->validCsrf())
+        {
+                echo 'Invalid CSRF token';
+        }
+        else
+        {
         $stmt = $engine->prepare("SELECT username FROM users WHERE id = ? LIMIT 1");
         $stmt->execute([$_SESSION['user']['id']]);
         $author = $stmt->fetchColumn();
@@ -71,9 +77,15 @@ if(isset($_POST["proceed"]))
 	unset($_SESSION["title"], $_SESSION["shortstory"], $_SESSION["longstory"]);
 	header("Location: ".$_CONFIG['hotel']['url']."/ase/");
 	exit;
+        $stmt->execute([filter($_SESSION["title"]), filter($_SESSION["shortstory"]), filter($_SESSION["longstory"]), time(), filter($_POST["topstory"]), filter($author)]);
+        unset($_SESSION["title"], $_SESSION["shortstory"], $_SESSION["longstory"]);
+        header("Location: ".$_CONFIG['hotel']['url']."/ase/");
+        exit;
+        }
 }
 	echo '<center><b>It\'s time to choose the image for your story. Choose one from the drop down list and click "Check Image"';
-	echo '<form method="post">';
+        echo '<form method="post">';
+        echo '<input type="hidden" name="csrf_token" value="'.$_SESSION['csrf_token'].'"/>';
 	echo '<br />';
 	echo '<select name="topstory" id="topstory" style="font-size: 14px;"';
 	

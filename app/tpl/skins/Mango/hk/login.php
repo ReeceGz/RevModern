@@ -14,9 +14,10 @@
 			 <?php echo $template->form->error; ?>
 			
 			<br />
-				<form method="post" action="index.php?url=login">
-				Username: <br /> <input type="text" name="username" class="login"/> <br /> <br />
-				Password: <br /> <input type="password" name="password" class="login"/> <br /> <br /><br />
+                                <form method="post" action="index.php?url=login">
+                                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"/>
+                                Username: <br /> <input type="text" name="username" class="login"/> <br /> <br />
+                                Password: <br /> <input type="password" name="password" class="login"/> <br /> <br /><br />
 						<input type="submit" value="Log into ASE" name="login" class="login"/>
 				</form><br /><br />     <center>Powered by ZapASE by Jontycat - Design by Predict</center>
   	<center>Implemented into RevCMS by Kryptos</center><br />
