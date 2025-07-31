@@ -265,10 +265,15 @@ class users implements iUsers
 	{
 		global $template, $_CONFIG, $core;
 		
-		if(isset($_POST['login']))
-		{	
-			$template->form->setData();
-			unset($template->form->error);
+                if(isset($_POST['login']))
+                {
+                        if(!$this->validCsrf())
+                        {
+                                $template->form->error = 'Invalid CSRF token';
+                                return;
+                        }
+                        $template->form->setData();
+                        unset($template->form->error);
 			
 			if(isset($template->form->username) && isset($template->form->password))
 			{

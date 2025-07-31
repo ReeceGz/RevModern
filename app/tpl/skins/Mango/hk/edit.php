@@ -55,10 +55,43 @@
          <?php
           
         if(isset($_POST['update']))
-		{
-                        $stmt = $engine->prepare("UPDATE users SET username = ?, mail = ?, motto = ?, rank = ?, credits = ?, activity_points = ? WHERE username = ?");
-                        $stmt->execute([filter($_POST["username"]), filter($_POST["email"]), filter($_POST["motto"]), filter($_POST["rank"]), filter($_POST["credits"]), filter($_POST["pixels"]), filter($_POST["username_current"])]);
-		}
+                {
+                        if(!$users->validCsrf())
+                        {
+                                echo "Invalid CSRF token.";
+                        }
+                        else
+                        {
+                                $stmt = $engine->prepare("SELECT id FROM users WHERE username = ? LIMIT 1");
+                                $stmt->execute([filter($_POST["username_current"])]);
+                                if($stmt->rowCount() == 0)
+                                {
+                                        echo "User does not exist.";
+                                }
+                                else
+                                {
+                                        $rank = (int)filter($_POST["rank"]);
+                                        $credits = (int)filter($_POST["credits"]);
+                                        $pixels = (int)filter($_POST["pixels"]);
+                                        if($rank < 1 || $rank > 7 || $credits < 0 || $credits > 100000000 || $pixels < 0 || $pixels > 100000000)
+                                        {
+                                                echo "Invalid rank or credit values.";
+                                        }
+                                        else
+                                        {
+                                                $stmt = $engine->prepare("UPDATE users SET username = ?, mail = ?, motto = ?, rank = ?, credits = ?, activity_points = ? WHERE username = ?");
+                                                if($stmt->execute([filter($_POST["username"]), filter($_POST["email"]), filter($_POST["motto"]), $rank, $credits, $pixels, filter($_POST["username_current"])]))
+                                                {
+                                                        echo "Account updated.";
+                                                }
+                                                else
+                                                {
+                                                        echo "Update failed.";
+                                                }
+                                        }
+                                }
+                        }
+                }
 		
 
 if(isset($_POST['lookup']))
@@ -72,7 +105,8 @@ if(isset($_POST['lookup']))
 ?>
 	Editing account: <?php echo $username; ?></a>
 	<form method='post'>
-	<input type="hidden" name="username_current" value="<?php echo $_POST['l_username']; ?>" />
+        <input type="hidden" name="username_current" value="<?php echo $_POST['l_username']; ?>" />
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>" />
 	
 		<table style="width: 100%;">
 				
@@ -109,10 +143,12 @@ if(isset($_POST['lookup']))
 	}
 	?>
 
-	<form method='post'>
-	Username <br /> <input type="text" name="l_username" /> <br /> <br />
-	<input type="submit" value="  Lookup user  " name="lookup"/>
-	</form>
+        <form method='post'>
+        Username <br /> <input type="text" name="l_username" /> <br />
+        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>" />
+        <br />
+        <input type="submit" value="  Lookup user  " name="lookup"/>
+        </form>
 
 </div>
         </div>

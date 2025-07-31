@@ -57,19 +57,50 @@
      
         if(isset($_POST['give']))
         {
-                $stmt = $engine->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
-                $stmt->execute([filter($_POST['username'])]);
-                if($stmt->fetchColumn() == 0){ echo "User does not exist."; }
-                else {
-                $stmt = $engine->prepare("UPDATE users SET rank = 3, credits = credits + '2000000', activity_points = activity_points + '2000000' WHERE username = ?");
-                $stmt->execute([filter($_POST['username'])]); }
+                if(!$users->validCsrf())
+                {
+                        echo "Invalid CSRF token.";
+                }
+                else
+                {
+                        $stmt = $engine->prepare("SELECT credits, activity_points FROM users WHERE username = ?");
+                        $stmt->execute([filter($_POST['username'])]);
+                        $data = $stmt->fetch();
+                        if(!$data)
+                        {
+                                echo "User does not exist.";
+                        }
+                        else
+                        {
+                                $credits = $data['credits'] + 2000000;
+                                $pixels = $data['activity_points'] + 2000000;
+                                if($credits > 100000000 || $pixels > 100000000)
+                                {
+                                        echo "Credit limit exceeded.";
+                                }
+                                else
+                                {
+                                        $stmt = $engine->prepare("UPDATE users SET rank = 3, credits = ?, activity_points = ? WHERE username = ?");
+                                        if($stmt->execute([$credits, $pixels, filter($_POST['username'])]))
+                                        {
+                                                echo "Super VIP given.";
+                                        }
+                                        else
+                                        {
+                                                echo "Update failed.";
+                                        }
+                                }
+                        }
+                }
         }
 	
 ?>
-				<form method="post">
-				Username <br /> <input type="text" name="username" /> <br /> <br />
-				<input type="submit" value="  Give Super VIP  " name="give"/>
-				</form>
+                                <form method="post">
+                                Username <br /> <input type="text" name="username" /> <br />
+                                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"/>
+                                <br />
+                                <input type="submit" value="  Give Super VIP  " name="give"/>
+                                </form>
 
         </div>
 
