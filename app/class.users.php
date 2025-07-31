@@ -265,6 +265,10 @@ class users implements iUsers
 	{
 		global $template, $_CONFIG, $core;
 		
+        final public function loginHK()
+        {
+                global $template, $_CONFIG, $core;
+
                 if(isset($_POST['login']))
                 {
                         if(!$this->validCsrf())

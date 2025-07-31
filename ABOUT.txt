@@ -3,3 +3,5 @@ Version 1.8 - RevCMS for PhoenixEmulator and Database.
 Creator(s): Kryptos
 
 Please read file: app/management/Documentation.txt
+
+Copy app/management/config.php.example to app/management/config.php and edit the values.
