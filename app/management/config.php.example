@@ -28,3 +28,6 @@ $_CONFIG['hotel']['web_build'] = 'default';
 // Name of the template folder located in app/tpl/skins/
 $_CONFIG['template']['style'] = 'default';
 
+$_CONFIG['recaptcha']['site_key'] = 'your-site-key-here';
+$_CONFIG['recaptcha']['secret_key'] = 'your-secret-key-here';
+

@@ -58,9 +58,9 @@ use Revolution as Rev;
 		
 		//MANAGEMENT
 		
-			require_once A . M . 'config.php';
-			
-			require_once A . M . 'recaptchalib.php';
+                        require_once A . M . 'config.php';
+
+                        require_once __DIR__ . '/vendor/autoload.php';
 				
 		//TPL
 		
@@ -95,7 +95,9 @@ use Revolution as Rev;
 		
 	$template->css = new Rev\css();
 		
-	$template->js = new Rev\js();
+        $template->js = new Rev\js();
+
+        $recaptcha = new \ReCaptcha\ReCaptcha($_CONFIG['recaptcha']['secret_key']);
 		
 	//START	
 	
