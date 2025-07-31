@@ -3,13 +3,13 @@ if(!defined('IN_INDEX')) { die('Sorry, you cannot access this file.'); }
 /*
  * This is a PHP library that handles calling reCAPTCHA.
  *    - Documentation and latest version
- *          http://recaptcha.net/plugins/php/
+ *          https://www.google.com/recaptcha/plugins/php/
  *    - Get a reCAPTCHA API Key
  *          https://www.google.com/recaptcha/admin/create
  *    - Discussion group
- *          http://groups.google.com/group/recaptcha
+ *          https://groups.google.com/group/recaptcha
  *
- * Copyright (c) 2007 reCAPTCHA -- http://recaptcha.net
+ * Copyright (c) 2007 reCAPTCHA -- https://www.google.com/recaptcha
  * AUTHORS:
  *   Mike Crawford
  *   Ben Maurer
@@ -36,7 +36,7 @@ if(!defined('IN_INDEX')) { die('Sorry, you cannot access this file.'); }
 /**
  * The reCAPTCHA server URL's
  */
-define("RECAPTCHA_API_SERVER", "http://www.google.com/recaptcha/api");
+define("RECAPTCHA_API_SERVER", "https://www.google.com/recaptcha/api");
 define("RECAPTCHA_API_SECURE_SERVER", "https://www.google.com/recaptcha/api");
 define("RECAPTCHA_VERIFY_SERVER", "www.google.com");
 
@@ -231,14 +231,14 @@ function _recaptcha_mailhide_urlbase64 ($x) {
 function recaptcha_mailhide_url($pubkey, $privkey, $email) {
 	if ($pubkey == '' || $pubkey == null || $privkey == "" || $privkey == null) {
 		die ("To use reCAPTCHA Mailhide, you have to sign up for a public and private key, " .
-		     "you can do so at <a href='http://www.google.com/recaptcha/mailhide/apikey'>http://www.google.com/recaptcha/mailhide/apikey</a>");
+                     "you can do so at <a href='https://www.google.com/recaptcha/mailhide/apikey'>https://www.google.com/recaptcha/mailhide/apikey</a>");
 	}
 	
 
 	$ky = pack('H*', $privkey);
 	$cryptmail = _recaptcha_aes_encrypt ($email, $ky);
 	
-	return "http://www.google.com/recaptcha/mailhide/d?k=" . $pubkey . "&c=" . _recaptcha_mailhide_urlbase64 ($cryptmail);
+        return "https://www.google.com/recaptcha/mailhide/d?k=" . $pubkey . "&c=" . _recaptcha_mailhide_urlbase64 ($cryptmail);
 }
 
 /**
@@ -263,7 +263,7 @@ function _recaptcha_mailhide_email_parts ($email) {
  * Gets html to display an email address given a public an private key.
  * to get a key, go to:
  *
- * http://www.google.com/recaptcha/mailhide/apikey
+ * https://www.google.com/recaptcha/mailhide/apikey
  */
 function recaptcha_mailhide_html($pubkey, $privkey, $email) {
 	$emailparts = _recaptcha_mailhide_email_parts ($email);
