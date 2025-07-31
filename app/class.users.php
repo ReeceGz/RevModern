@@ -217,13 +217,14 @@ class users implements iUsers
 				if($this->isBanned($template->form->log_username) == false || $this->isBanned($_SERVER['REMOTE_ADDR']) == false)
 				{
                                         if($this->userValidation($template->form->log_username, $template->form->log_password))
-					{
-						$this->turnOn($template->form->log_username);
-						$this->updateUser($_SESSION['user']['id'], 'ip_last', $_SERVER['REMOTE_ADDR']);
-						$template->form->unsetData();
-						header('Location: ' . $_CONFIG['hotel']['url'] . '/me');
-						exit;
-					}
+                                        {
+                                                $this->turnOn($template->form->log_username);
+                                                session_regenerate_id(true);
+                                                $this->updateUser($_SESSION['user']['id'], 'ip_last', $_SERVER['REMOTE_ADDR']);
+                                                $template->form->unsetData();
+                                                header('Location: ' . $_CONFIG['hotel']['url'] . '/me');
+                                                exit;
+                                        }
 					else
 					{
 						$template->form->error = 'Details do not match';
