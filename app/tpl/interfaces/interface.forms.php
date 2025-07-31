@@ -18,4 +18,3 @@ interface iForms
 	public function getPageNews();
 	
 }
-?>

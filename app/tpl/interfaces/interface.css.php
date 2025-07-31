@@ -12,4 +12,3 @@ interface iCSS
 	public function setCSS();
 
 }
-?>

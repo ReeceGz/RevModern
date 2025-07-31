@@ -12,4 +12,3 @@ interface iHTML
 	public function setHTML();
 
 }
-?>
