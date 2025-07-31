@@ -28,4 +28,3 @@ interface iEngine
 	public function free_result($sql);
 	
 }
-?>

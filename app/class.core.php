@@ -178,4 +178,3 @@ class core implements iCore
                 return password_verify($password, $hash);
         }
 }
-?>

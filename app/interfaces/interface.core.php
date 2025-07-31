@@ -19,4 +19,3 @@ interface iCore
         public function verifyHash($password, $hash);
 
 }
-?>

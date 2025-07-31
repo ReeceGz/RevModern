@@ -12,4 +12,3 @@ interface iJS
 	public function setJS();
 
 }
-?>

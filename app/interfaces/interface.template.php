@@ -16,4 +16,3 @@ interface iTemplate
 	public function outputTPL();
 	
 }	
-?>

@@ -597,4 +597,3 @@ class users implements iUsers
 	}
 	
 }
-?>

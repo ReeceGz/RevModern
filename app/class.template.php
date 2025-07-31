@@ -89,4 +89,3 @@ class template implements iTemplate
 		unset($this->tpl);
 	}
 }
-?>
