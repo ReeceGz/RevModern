@@ -493,9 +493,33 @@ class users implements iUsers
                $stmt->execute([$k]);
        }
 	  	
-	final public function updateUser($k, $key, $value) 	
-	{ 		
-	 	global $engine; 		 		
+       /**
+        * Update a single column for the given user.
+        *
+        * Allowed keys: ip_last, motto, mail, password, auth_ticket,
+        * credits and activity_points.
+        *
+        * @throws \InvalidArgumentException When an invalid column name is supplied.
+        */
+       final public function updateUser($k, $key, $value)
+       {
+               global $engine;
+
+               $allowed = [
+                       'ip_last',
+                       'motto',
+                       'mail',
+                       'password',
+                       'auth_ticket',
+                       'credits',
+                       'activity_points'
+               ];
+
+               if(!in_array($key, $allowed, true))
+               {
+                       throw new \InvalidArgumentException('Invalid user column');
+               }
+
                if($key == 'credits' || $key == 'activity_points')
                {
                        $type = ($key == 'credits') ? 0 : 5;
