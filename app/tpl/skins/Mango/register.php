@@ -5,7 +5,8 @@
 <hr/>  
 <?php if(isset($template->form->error)) { echo '<div id="message">'.$template->form->error.'</div>'; } ?>
 Welcome to {hotelName}! We're very excited to meet you, complete the following form and you will get a account with us and <?php echo $_CONFIG['hotel']['credits']; ?> free credits! We'll see you inside!<br/><br/> 
-<form action="register" method="post"> 
+<form action="register" method="post">
+<input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"/>
 <table width="100%" border="0"> 
 <tr> 
 <td width="25%">Username:</td> 

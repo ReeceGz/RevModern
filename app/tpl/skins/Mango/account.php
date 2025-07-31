@@ -58,7 +58,8 @@ Welcome back, {username}
 <?php if(isset($template->form->error)) { echo '<div id="message">'.$template->form->error.'</div>'; } ?>
 From here you can modify your account information such as email address and password! <br/> 
 <br/> 
-<form action="" method="post"> 
+<form action="" method="post">
+<input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>"/>
 <table width="766" border="0"> 
 <tr> 
 <td width="150"><strong>Email</strong></td> 
