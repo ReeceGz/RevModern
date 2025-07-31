@@ -14,3 +14,4 @@ This repository contains the RevCMS source code. Before running the application 
 The CMS relies on Google's [`google/recaptcha`](https://github.com/google/recaptcha) library for spam protection.
 
 After configuration you can point your web server to `index.php` and start the CMS.
+The default website template is located in `app/tpl/skins/default/`.
