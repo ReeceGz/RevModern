@@ -58,9 +58,10 @@ class core implements iCore
 						exit;
 					break;
 					
-					default:
-						//Nothing
-					break;
+                                        default:
+                                                http_response_code(404);
+                                                $_GET['url'] = '404';
+                                        break;
 				}
 			}
 			else
@@ -102,9 +103,10 @@ class core implements iCore
 						$users->updateAccount();
 					break;
 					
-					default:
-						//nothing
-					break;
+                                        default:
+                                                http_response_code(404);
+                                                $_GET['url'] = '404';
+                                        break;
 				}
 			}
 		}
